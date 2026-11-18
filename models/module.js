@@ -17,6 +17,7 @@ const Module = sequelize.define(
       unique: true,
       validate: {
         notEmpty: { msg: 'Le code du module est requis.' },
+        is: { args: /^[A-Za-z0-9_-]+$/, msg: 'Le code ne doit contenir que des lettres, chiffres, tirets ou underscores.' },
       },
     },
     libelle: {
@@ -27,10 +28,11 @@ const Module = sequelize.define(
       },
     },
     credits: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 3,
       validate: {
+        isInt: { msg: 'Les crédits doivent être un nombre entier.' },
         min: { args: [1], msg: 'Les crédits doivent être supérieurs à 0.' },
         max: { args: [30], msg: 'Les crédits ne peuvent pas dépasser 30.' },
       },

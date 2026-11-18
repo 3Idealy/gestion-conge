@@ -95,14 +95,20 @@ exports.deleteModule = async (req, res) => {
 // GET /matieres
 exports.getAllMatieres = async (req, res) => {
   try {
-    const { module_id, type_matiere } = req.query;
+    const { module_id, type_matiere, niveau_id } = req.query;
     const where = {};
     if (module_id) where.module_id = module_id;
     if (type_matiere) where.type_matiere = type_matiere;
 
+    const moduleInclude = {
+      association: 'module',
+      include: [{ association: 'parcours' }, { association: 'niveau' }],
+    };
+    if (niveau_id) moduleInclude.where = { niveau_id };
+
     const matieres = await Matiere.findAll({
       where,
-      include: [{ association: 'module', include: [{ association: 'parcours' }, { association: 'niveau' }] }],
+      include: [moduleInclude, { association: 'enseignant' }],
       order: [['libelle', 'ASC']],
     });
     return res.status(200).json(matieres);
@@ -115,7 +121,10 @@ exports.getAllMatieres = async (req, res) => {
 exports.getMatiereById = async (req, res) => {
   try {
     const matiere = await Matiere.findByPk(req.params.id, {
-      include: [{ association: 'module', include: [{ association: 'parcours' }, { association: 'niveau' }] }],
+      include: [
+        { association: 'module', include: [{ association: 'parcours' }, { association: 'niveau' }] },
+        { association: 'enseignant' }
+      ],
     });
     if (!matiere) return res.status(404).json({ message: 'Matière introuvable.' });
     return res.status(200).json(matiere);
@@ -127,8 +136,8 @@ exports.getMatiereById = async (req, res) => {
 // POST /matieres
 exports.createMatiere = async (req, res) => {
   try {
-    const { code, libelle, coefficient, volume_horaire, type_matiere, module_id } = req.body;
-    const matiere = await Matiere.create({ code, libelle, coefficient, volume_horaire, type_matiere, module_id });
+    const { code, libelle, coefficient, volume_horaire, type_matiere, module_id, enseignant_id } = req.body;
+    const matiere = await Matiere.create({ code, libelle, coefficient, volume_horaire, type_matiere, module_id, enseignant_id });
     return res.status(201).json(matiere);
   } catch (err) {
     if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
@@ -143,8 +152,8 @@ exports.updateMatiere = async (req, res) => {
   try {
     const matiere = await Matiere.findByPk(req.params.id);
     if (!matiere) return res.status(404).json({ message: 'Matière introuvable.' });
-    const { code, libelle, coefficient, volume_horaire, type_matiere, module_id } = req.body;
-    await matiere.update({ code, libelle, coefficient, volume_horaire, type_matiere, module_id });
+    const { code, libelle, coefficient, volume_horaire, type_matiere, module_id, enseignant_id } = req.body;
+    await matiere.update({ code, libelle, coefficient, volume_horaire, type_matiere, module_id, enseignant_id });
     return res.status(200).json(matiere);
   } catch (err) {
     if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {

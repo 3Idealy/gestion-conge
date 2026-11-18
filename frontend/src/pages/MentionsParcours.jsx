@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input, Select, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Modal, EmptyState, ConfirmDialog } from '../components/ui';
 import { Plus, Pencil, Trash2, Search, BookOpen, Layers, Loader2 } from 'lucide-react';
 import { mentionApi, parcoursApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function MentionsParcours() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   const [mentions, setMentions] = useState([]);
   const [parcours, setParcours] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +92,7 @@ export default function MentionsParcours() {
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in relative">
-      <div className="absolute top-20 left-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] -z-10 -translate-x-1/2" />
+      <div className="absolute top-10 right-10 w-72 h-72 bg-sky-500/10 rounded-full blur-[100px] -z-10" />
 
       <div>
         <h1 className="text-4xl font-extrabold tracking-tight text-[var(--color-text)]">Mentions & Parcours</h1>
@@ -97,21 +101,21 @@ export default function MentionsParcours() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* MENTIONS */}
-        <Card className="animate-fade-in-delay-1 border-t-4 border-t-purple-500 flex flex-col">
+        <Card className="animate-fade-in-delay-1 border-t-4 border-t-sky-500 flex flex-col">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div><CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-purple-500" /> Mentions</CardTitle><CardDescription>Total : {mentions.length}</CardDescription></div>
-              <Button size="sm" onClick={openAddMention} className="shadow-lg shadow-purple-500/20"><Plus className="w-4 h-4" /> Ajouter</Button>
+              <div><CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-sky-500" /> Mentions</CardTitle><CardDescription>Total : {mentions.length}</CardDescription></div>
+              <Button size="sm" onClick={openAddMention} variant="ghost" className="text-sky-600 hover:bg-sky-50"><Plus className="w-4 h-4" /> Ajouter</Button>
             </div>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <div className="relative mb-6 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--color-primary)] transition-colors" />
               <input value={searchMention} onChange={(e) => setSearchMention(e.target.value)} placeholder="Rechercher une mention..."
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none" />
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all outline-none" />
             </div>
             {loading ? (
-              <div className="flex-1 flex justify-center items-center py-12"><Loader2 className="w-8 h-8 animate-spin text-purple-500" /></div>
+              <div className="flex-1 flex justify-center items-center py-12"><Loader2 className="w-8 h-8 animate-spin text-sky-500" /></div>
             ) : filteredMentions.length === 0 ? (
               <EmptyState icon={BookOpen} title="Aucune mention" />
             ) : (
@@ -122,9 +126,9 @@ export default function MentionsParcours() {
                     {filteredMentions.map((m, idx) => (
                       <TableRow key={m.id} className="group animate-fade-in" style={{ animationDelay: `${idx * 0.05}s` }}>
                         <TableCell><span className="font-bold text-slate-800">{m.libelle}</span>{m.description && <p className="text-xs font-medium text-slate-400 mt-0.5">{m.description}</p>}</TableCell>
-                        <TableCell><span className="text-sm font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">{m.parcours?.length || 0} parcours</span></TableCell>
+                        <TableCell><span className="text-sm font-bold text-sky-600 bg-sky-50 px-2 py-1 rounded-md">{m.parcours?.length || 0} parcours</span></TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-1.5 transition-opacity">
                             <Button variant="outline" size="sm" onClick={() => openEditMention(m)} className="!px-2 h-8 text-emerald-500"><Pencil className="w-4 h-4" /></Button>
                             <Button variant="danger" size="sm" onClick={() => { setDeletingMentionId(m.id); setMentionConfirmOpen(true); }} className="!px-2 h-8"><Trash2 className="w-4 h-4" /></Button>
                           </div>
@@ -139,21 +143,21 @@ export default function MentionsParcours() {
         </Card>
 
         {/* PARCOURS */}
-        <Card className="animate-fade-in-delay-2 border-t-4 border-t-pink-500 flex flex-col">
+        <Card className="animate-fade-in-delay-2 border-t-4 border-t-sky-500 flex flex-col">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div><CardTitle className="flex items-center gap-2"><Layers className="w-5 h-5 text-pink-500" /> Parcours</CardTitle><CardDescription>Total : {parcours.length}</CardDescription></div>
-              <Button size="sm" onClick={openAddParcours} className="shadow-lg shadow-pink-500/20 bg-pink-600 hover:bg-pink-700"><Plus className="w-4 h-4" /> Ajouter</Button>
+              <div><CardTitle className="flex items-center gap-2"><Layers className="w-5 h-5 text-sky-500" /> Parcours</CardTitle><CardDescription>Total : {parcours.length}</CardDescription></div>
+              <Button size="sm" onClick={openAddParcours} variant="ghost" className="text-sky-600 hover:bg-sky-50"><Plus className="w-4 h-4" /> Ajouter</Button>
             </div>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <div className="relative mb-6 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-pink-500 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--color-primary)] transition-colors" />
               <input value={searchParcours} onChange={(e) => setSearchParcours(e.target.value)} placeholder="Rechercher un parcours..."
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 transition-all outline-none" />
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all outline-none" />
             </div>
             {loading ? (
-              <div className="flex-1 flex justify-center items-center py-12"><Loader2 className="w-8 h-8 animate-spin text-pink-500" /></div>
+              <div className="flex-1 flex justify-center items-center py-12"><Loader2 className="w-8 h-8 animate-spin text-sky-500" /></div>
             ) : filteredParcours.length === 0 ? (
               <EmptyState icon={Layers} title="Aucun parcours" />
             ) : (
@@ -166,7 +170,7 @@ export default function MentionsParcours() {
                         <TableCell><span className="font-bold text-slate-800">{p.libelle}</span>{p.description && <p className="text-xs font-medium text-slate-400 mt-0.5">{p.description}</p>}</TableCell>
                         <TableCell><span className="text-sm font-semibold text-slate-600">{p.mention?.libelle || '-'}</span></TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-1.5 transition-opacity">
                             <Button variant="outline" size="sm" onClick={() => openEditParcours(p)} className="!px-2 h-8 text-emerald-500"><Pencil className="w-4 h-4" /></Button>
                             <Button variant="danger" size="sm" onClick={() => { setDeletingParcoursId(p.id); setParcoursConfirmOpen(true); }} className="!px-2 h-8"><Trash2 className="w-4 h-4" /></Button>
                           </div>
@@ -184,11 +188,11 @@ export default function MentionsParcours() {
       {/* Mention Modal */}
       <Modal open={mentionModalOpen} onClose={() => setMentionModalOpen(false)} title={editingMention ? 'Modifier la mention' : 'Ajouter une mention'}>
         <form onSubmit={handleMentionSubmit} className="space-y-4">
-          <Input label="Libellé" value={mentionForm.libelle} onChange={(e) => setMentionForm({...mentionForm, libelle: e.target.value})} required placeholder="Ex: Informatique" />
+          <Input label="Libellé" value={mentionForm.libelle} onChange={(e) => setMentionForm({ ...mentionForm, libelle: e.target.value })} required placeholder="Ex: Informatique" />
           <div className="space-y-2 group">
-            <label className="block text-sm font-semibold text-slate-700 group-focus-within:text-emerald-600 transition-colors">Description</label>
-            <textarea value={mentionForm.description} onChange={(e) => setMentionForm({...mentionForm, description: e.target.value})} rows={3}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="Description optionnelle..." />
+            <label className="block text-sm font-semibold text-slate-700 group-focus-within:text-[var(--color-primary)] transition-colors">Description</label>
+            <textarea value={mentionForm.description} onChange={(e) => setMentionForm({ ...mentionForm, description: e.target.value })} rows={3}
+              className="w-full px-4 py-3 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all outline-none" placeholder="Description optionnelle..." />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]/50"><Button variant="ghost" type="button" onClick={() => setMentionModalOpen(false)}>Annuler</Button><Button type="submit" disabled={savingMention}>{savingMention && <Loader2 className="w-5 h-5 animate-spin" />}{editingMention ? 'Sauvegarder' : 'Ajouter'}</Button></div>
         </form>
@@ -197,20 +201,20 @@ export default function MentionsParcours() {
       {/* Parcours Modal */}
       <Modal open={parcoursModalOpen} onClose={() => setParcoursModalOpen(false)} title={editingParcours ? 'Modifier le parcours' : 'Ajouter un parcours'}>
         <form onSubmit={handleParcoursSubmit} className="space-y-4">
-          <Input label="Libellé" value={parcoursForm.libelle} onChange={(e) => setParcoursForm({...parcoursForm, libelle: e.target.value})} required placeholder="Ex: Génie Logiciel" />
-          <Select label="Mention Parente" value={parcoursForm.mention_id} onChange={(e) => setParcoursForm({...parcoursForm, mention_id: e.target.value})} required
-            options={mentions.map(m => ({value: String(m.id), label: m.libelle}))} />
+          <Input label="Libellé" value={parcoursForm.libelle} onChange={(e) => setParcoursForm({ ...parcoursForm, libelle: e.target.value })} required placeholder="Ex: Génie Logiciel" />
+          <Select label="Mention Parente" value={parcoursForm.mention_id} onChange={(e) => setParcoursForm({ ...parcoursForm, mention_id: e.target.value })} required
+            options={mentions.map(m => ({ value: String(m.id), label: m.libelle }))} />
           <div className="space-y-2 group">
-            <label className="block text-sm font-semibold text-slate-700 group-focus-within:text-emerald-600 transition-colors">Description</label>
-            <textarea value={parcoursForm.description} onChange={(e) => setParcoursForm({...parcoursForm, description: e.target.value})} rows={3}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="Description optionnelle..." />
+            <label className="block text-sm font-semibold text-slate-700 group-focus-within:text-[var(--color-primary)] transition-colors">Description</label>
+            <textarea value={parcoursForm.description} onChange={(e) => setParcoursForm({ ...parcoursForm, description: e.target.value })} rows={3}
+              className="w-full px-4 py-3 rounded-xl text-sm font-medium border border-[var(--color-border)] bg-[var(--color-bg-input)] focus:bg-white focus:ring-4 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all outline-none" placeholder="Description optionnelle..." />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]/50"><Button variant="ghost" type="button" onClick={() => setParcoursModalOpen(false)}>Annuler</Button><Button type="submit" disabled={savingParcours}>{savingParcours && <Loader2 className="w-5 h-5 animate-spin" />}{editingParcours ? 'Sauvegarder' : 'Ajouter'}</Button></div>
         </form>
       </Modal>
 
-      <ConfirmDialog open={mentionConfirmOpen} onClose={() => setMentionConfirmOpen(false)} onConfirm={confirmDeleteMention} title="Supprimer la mention ?" message="Cette action est définitive." />
-      <ConfirmDialog open={parcoursConfirmOpen} onClose={() => setParcoursConfirmOpen(false)} onConfirm={confirmDeleteParcours} title="Supprimer le parcours ?" message="Cette action est définitive." />
+      <ConfirmDialog open={mentionConfirmOpen} onClose={() => setMentionConfirmOpen(false)} onConfirm={confirmDeleteMention} title="Supprimer la mention ?" message="Cette action est définitive." variant="danger" />
+      <ConfirmDialog open={parcoursConfirmOpen} onClose={() => setParcoursConfirmOpen(false)} onConfirm={confirmDeleteParcours} title="Supprimer le parcours ?" message="Cette action est définitive." variant="danger" />
     </div>
   );
 }

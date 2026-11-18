@@ -48,6 +48,12 @@ const AnneeUniversitaire = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    statut: {
+      type: DataTypes.ENUM('vide', 'en_cours', 'cloturee'),
+      allowNull: false,
+      defaultValue: 'vide',
+      comment: 'vide=nouvelle année pas encore utilisée, en_cours=année active, cloturee=année terminée',
+    },
   },
   {
     tableName: 'annee_universitaire',

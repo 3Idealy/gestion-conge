@@ -1,25 +1,42 @@
 'use strict';
 
 const { Etudiant, Parcours, Niveau, Note, Matiere } = require('../models');
+const { checkEtudiantDuplicates } = require('../utils/validators');
 
 // GET /etudiants
 exports.getAll = async (req, res) => {
   try {
-    const { parcours_id, niveau_id, actif } = req.query;
+    const { parcours_id, niveau_id, actif, limit, offset, order_by, order_dir } = req.query;
     const where = {};
     if (parcours_id) where.parcours_id = parcours_id;
     if (niveau_id) where.niveau_id = niveau_id;
     if (actif !== undefined) where.actif = actif === 'true';
 
-    const etudiants = await Etudiant.findAll({
+    const options = {
       where,
       include: [
         { association: 'parcours', include: [{ association: 'mention' }] },
         { association: 'niveau' },
       ],
-      order: [['nom', 'ASC'], ['prenom', 'ASC']],
+    };
+
+    if (limit) options.limit = parseInt(limit);
+    if (offset) options.offset = parseInt(offset);
+    
+    const ob = order_by || 'numero_etudiant';
+    const od = order_dir || 'ASC';
+    options.order = [[ob, od]];
+    if (ob === 'numero_etudiant') options.order.push(['nom', 'ASC'], ['prenom', 'ASC']);
+    else if (ob === 'nom') options.order.push(['prenom', 'ASC']);
+
+    const { count, rows } = await Etudiant.findAndCountAll(options);
+    
+    return res.status(200).json({
+      total: count,
+      etudiants: rows,
+      limit: options.limit,
+      offset: options.offset
     });
-    return res.status(200).json(etudiants);
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -71,6 +88,11 @@ exports.create = async (req, res) => {
       genre, email, telephone, parcours_id, niveau_id, actif,
     } = req.body;
 
+    const dupErrors = await checkEtudiantDuplicates(Etudiant, {
+      numero_etudiant, nom, prenom, email, telephone,
+    });
+    if (dupErrors.length) return res.status(400).json({ message: dupErrors });
+
     const etudiant = await Etudiant.create({
       numero_etudiant, nom, prenom, date_naissance, lieu_naissance,
       genre, email, telephone, parcours_id, niveau_id,
@@ -95,6 +117,11 @@ exports.update = async (req, res) => {
       numero_etudiant, nom, prenom, date_naissance, lieu_naissance,
       genre, email, telephone, parcours_id, niveau_id, actif,
     } = req.body;
+
+    const dupErrors = await checkEtudiantDuplicates(Etudiant, {
+      numero_etudiant, nom, prenom, email, telephone, excludeId: req.params.id,
+    });
+    if (dupErrors.length) return res.status(400).json({ message: dupErrors });
 
     await etudiant.update({
       numero_etudiant, nom, prenom, date_naissance, lieu_naissance,

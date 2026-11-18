@@ -1,0 +1,9 @@
+DB connected OK
+ENUM type already exists or skip: type "enum_note_type_note" already exists
+Added type_note column to note table
+Added est_absent column to note table
+Added type_absence column to note table
+Added statut column to note table
+observation column already exists
+Dropped old unique_note_par_session index
+SYNC OK!

@@ -44,14 +44,32 @@ const User = sequelize.define(
       },
     },
     role: {
-      type: DataTypes.ENUM('admin', 'enseignant', 'secretaire'),
+      type: DataTypes.ENUM('admin', 'enseignant', 'secretaire', 'etudiant'),
       allowNull: false,
       defaultValue: 'secretaire',
+    },
+    etudiant_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: 'etudiant', key: 'id' },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+      comment: 'Lien vers le profil étudiant (si rôle = etudiant)',
     },
     actif: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+    reset_token: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      field: 'reset_token',
+    },
+    reset_token_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'reset_token_expires',
     },
   },
   {

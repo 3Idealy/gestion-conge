@@ -17,6 +17,7 @@ const Etudiant = sequelize.define(
       unique: true,
       validate: {
         notEmpty: { msg: 'Le numéro étudiant est requis.' },
+        is: { args: /^\d+$/, msg: 'Le numéro étudiant ne doit contenir que des chiffres.' },
       },
     },
     nom: {
@@ -24,6 +25,7 @@ const Etudiant = sequelize.define(
       allowNull: false,
       validate: {
         notEmpty: { msg: 'Le nom est requis.' },
+        is: { args: /^[A-Za-zÀ-ÿ\s'-]+$/i, msg: 'Le nom ne doit contenir que des lettres.' },
       },
     },
     prenom: {
@@ -31,6 +33,7 @@ const Etudiant = sequelize.define(
       allowNull: false,
       validate: {
         notEmpty: { msg: 'Le prénom est requis.' },
+        is: { args: /^[A-Za-zÀ-ÿ\s'-]+$/i, msg: 'Le prénom ne doit contenir que des lettres.' },
       },
     },
     date_naissance: {
@@ -59,6 +62,9 @@ const Etudiant = sequelize.define(
     telephone: {
       type: DataTypes.STRING(20),
       allowNull: true,
+      validate: {
+        is: { args: /^[\d\s+().-]{6,20}$/, msg: 'Le téléphone ne doit contenir que des chiffres et caractères téléphoniques.' },
+      },
     },
     parcours_id: {
       type: DataTypes.INTEGER,

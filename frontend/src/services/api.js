@@ -21,7 +21,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -39,6 +41,18 @@ export const authApi = {
   login: (data) => api.post('/auth/login', data).then(handleResponse).catch(handleError),
   register: (data) => api.post('/auth/register', data).then(handleResponse).catch(handleError),
   me: () => api.get('/auth/me').then(handleResponse).catch(handleError),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }).then(handleResponse).catch(handleError),
+  resetPassword: (data) => api.post('/auth/reset-password', data).then(handleResponse).catch(handleError),
+};
+
+// ── UTILISATEURS ──────────────────────────────────────────────────────────
+export const userApi = {
+  getAll: (params) => api.get('/users', { params }).then(handleResponse).catch(handleError),
+  getById: (id) => api.get(`/users/${id}`).then(handleResponse).catch(handleError),
+  create: (data) => api.post('/users', data).then(handleResponse).catch(handleError),
+  update: (id, data) => api.put(`/users/${id}`, data).then(handleResponse).catch(handleError),
+  toggleActif: (id) => api.patch(`/users/${id}/actif`).then(handleResponse).catch(handleError),
+  delete: (id) => api.delete(`/users/${id}`).then(() => true).catch(handleError),
 };
 
 // ── MENTIONS ──────────────────────────────────────────────────────────────
@@ -110,19 +124,25 @@ export const matiereApi = {
 export const noteApi = {
   getAll: (params) => api.get('/notes', { params }).then(handleResponse).catch(handleError),
   getById: (id) => api.get(`/notes/${id}`).then(handleResponse).catch(handleError),
+  getHistorique: (id) => api.get(`/notes/${id}/historique`).then(handleResponse).catch(handleError),
   releve: (etudiantId, params) => api.get(`/notes/releve/${etudiantId}`, { params }).then(handleResponse).catch(handleError),
   create: (data) => api.post('/notes', data).then(handleResponse).catch(handleError),
   update: (id, data) => api.put(`/notes/${id}`, data).then(handleResponse).catch(handleError),
   delete: (id) => api.delete(`/notes/${id}`).then(() => true).catch(handleError),
+  validateNotes: (note_ids) => api.patch('/notes/validate', { note_ids }).then(handleResponse).catch(handleError),
+  importBulk: (formData) => api.post('/notes/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(handleResponse).catch(handleError),
 };
 
 // ── ANNEES UNIVERSITAIRES ─────────────────────────────────────────────────
 export const anneeApi = {
   getAll: () => api.get('/annees').then(handleResponse).catch(handleError),
+  getVides: () => api.get('/annees/vides').then(handleResponse).catch(handleError),
   getById: (id) => api.get(`/annees/${id}`).then(handleResponse).catch(handleError),
   create: (data) => api.post('/annees', data).then(handleResponse).catch(handleError),
   update: (id, data) => api.put(`/annees/${id}`, data).then(handleResponse).catch(handleError),
   delete: (id) => api.delete(`/annees/${id}`).then(() => true).catch(handleError),
+  cloturer: (data) => api.post('/annees/cloturer', data).then(handleResponse).catch(handleError),
+  setNouvelleAnnee: (data) => api.post('/annees/set-nouvelle-annee', data).then(handleResponse).catch(handleError),
 };
 
 // ── SESSIONS EXAMEN ───────────────────────────────────────────────────────
@@ -134,4 +154,59 @@ export const sessionApi = {
   delete: (id) => api.delete(`/sessions/${id}`).then(() => true).catch(handleError),
 };
 
+// ── DELIBERATIONS ─────────────────────────────────────────────────────────
+export const deliberationApi = {
+  getAll: (params) => api.get('/deliberations', { params }).then(handleResponse).catch(handleError),
+  getById: (id) => api.get(`/deliberations/${id}`).then(handleResponse).catch(handleError),
+  create: (data) => api.post('/deliberations', data).then(handleResponse).catch(handleError),
+  update: (id, data) => api.put(`/deliberations/${id}`, data).then(handleResponse).catch(handleError),
+  valider: (id) => api.patch(`/deliberations/${id}/valider`).then(handleResponse).catch(handleError),
+  updateDecision: (id, decisionId, data) => api.patch(`/deliberations/${id}/decision/${decisionId}`, data).then(handleResponse).catch(handleError),
+  recalculer: (id) => api.post(`/deliberations/${id}/recalculer`).then(handleResponse).catch(handleError),
+  delete: (id) => api.delete(`/deliberations/${id}`).then(() => true).catch(handleError),
+};
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+export const notificationApi = {
+  getAll: () => api.get('/notifications').then(handleResponse).catch(handleError),
+  unreadCount: () => api.get('/notifications/unread-count').then(handleResponse).catch(handleError),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`).then(handleResponse).catch(handleError),
+  markAllAsRead: () => api.patch('/notifications/read-all').then(handleResponse).catch(handleError),
+  delete: (id) => api.delete(`/notifications/${id}`).then(() => true).catch(handleError),
+};
+
+// ── STATISTIQUES ──────────────────────────────────────────────────────────
+export const statsApi = {
+  dashboard: (params) => api.get('/stats/dashboard', { params }).then(handleResponse).catch(handleError),
+  mentionsParNiveauParcours: (params) => api.get('/stats/mentions-par-niveau-parcours', { params }).then(handleResponse).catch(handleError),
+  analyseEchecs: (params) => api.get('/stats/analyse-echecs', { params }).then(handleResponse).catch(handleError),
+  tauxReussite: (params) => api.get('/stats/taux-reussite', { params }).then(handleResponse).catch(handleError),
+  classement: (params) => api.get('/stats/classement', { params }).then(handleResponse).catch(handleError),
+};
+
+// ── EXPORT ────────────────────────────────────────────────────────────────
+export const exportApi = {
+  bulletinPDF: (etudiantId, params) => api.get(`/export/bulletin/${etudiantId}`, { params, responseType: 'blob' }).then(res => res.data).catch(handleError),
+  pvDeliberationPDF: (id) => api.get(`/export/pv-deliberation/${id}`, { responseType: 'blob' }).then(res => res.data).catch(handleError),
+  recapNotesNiveauPDF: (niveauId, params) => api.get(`/export/recap-notes-niveau/${niveauId}`, { params, responseType: 'blob' }).then(res => res.data).catch(handleError),
+  download: async (url, filename) => {
+    try {
+      const response = await api.get(`/export/${url}`, { responseType: 'blob' });
+      // Si la réponse est déjà un Blob, on l'utilise directement, sinon on le crée
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data]);
+      const blobURL = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobURL;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobURL);
+    } catch (err) {
+      handleError(err);
+    }
+  }
+};
+
 export default api;
+

@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Modal, EmptyState, ConfirmDialog } from '../components/ui';
 import { Plus, Pencil, Trash2, Search, ArrowUpCircle, Loader2 } from 'lucide-react';
 import { niveauApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Niveaux() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   const [niveaux, setNiveaux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,9 +79,9 @@ export default function Niveaux() {
               <CardTitle className="flex items-center gap-2"><ArrowUpCircle className="w-5 h-5 text-emerald-500" /> Niveaux</CardTitle>
               <CardDescription>Total : {niveaux.length}</CardDescription>
             </div>
-            <Button size="sm" onClick={openAdd} className="shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="w-4 h-4" /> Ajouter
-            </Button>
+              <Button size="sm" onClick={openAdd} variant="ghost" className="text-emerald-600 hover:bg-emerald-50">
+                <Plus className="w-4 h-4" /> Ajouter
+              </Button>
           </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col">
@@ -106,12 +110,12 @@ export default function Niveaux() {
                     <TableRow key={item.id} className="group animate-fade-in" style={{ animationDelay: `${idx * 0.05}s` }}>
                       <TableCell><span className="font-bold text-slate-800">{item.libelle}</span></TableCell>
                       <TableCell><span className="text-sm font-medium text-slate-500">{item.ordre}</span></TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="outline" size="sm" onClick={() => openEdit(item)} className="!px-2 h-8 text-emerald-600 border-emerald-200 hover:bg-emerald-50"><Pencil className="w-4 h-4" /></Button>
-                          <Button variant="danger" size="sm" onClick={() => { setDeletingId(item.id); setConfirmOpen(true); }} className="!px-2 h-8"><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                      </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1.5 transition-opacity">
+                            <Button variant="outline" size="sm" onClick={() => openEdit(item)} className="!px-2 h-8 text-emerald-600 border-emerald-200 hover:bg-emerald-50"><Pencil className="w-4 h-4" /></Button>
+                            <Button variant="danger" size="sm" onClick={() => { setDeletingId(item.id); setConfirmOpen(true); }} className="!px-2 h-8"><Trash2 className="w-4 h-4" /></Button>
+                          </div>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -135,7 +139,8 @@ export default function Niveaux() {
         </form>
       </Modal>
 
-      <ConfirmDialog open={confirmOpen} onClose={() => setConfirmOpen(false)} onConfirm={confirmDelete} title="Supprimer le niveau ?" message="Êtes-vous sûr ? Cette action pourrait impacter les autres entités." />
+      <ConfirmDialog open={confirmOpen} onClose={() => setConfirmOpen(false)} onConfirm={confirmDelete} title="Supprimer le niveau ?" message="Êtes-vous sûr ? Cette action pourrait impacter les autres entités." variant="danger" />
     </div>
   );
 }
+

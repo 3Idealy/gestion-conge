@@ -165,16 +165,14 @@ export default function Enseignants() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Modifier l\'enseignant' : 'Ajouter un enseignant'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Input label="Matricule" value={form.matricule} onChange={(e) => setForm({...form, matricule: e.target.value})} required placeholder="Ex: ENS001" />
-            <Select label="Grade" value={form.grade} onChange={(e) => setForm({...form, grade: e.target.value})} required
-              options={GRADES.map(g => ({value: g, label: g}))} />
-            <Input label="Nom" value={form.nom} onChange={(e) => setForm({...form, nom: e.target.value})} required />
-            <Input label="Prénom" value={form.prenom} onChange={(e) => setForm({...form, prenom: e.target.value})} required />
-            <Input label="Email" type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} placeholder="email@univ.edu" />
-            <Input label="Téléphone" value={form.telephone} onChange={(e) => setForm({...form, telephone: e.target.value})} />
-            <div className="sm:col-span-2">
-               <Input label="Spécialité" value={form.specialite} onChange={(e) => setForm({...form, specialite: e.target.value})} placeholder="Informatique, Mathématiques..." />
-            </div>
+            <Input label="Matricule" value={form.matricule} onChange={(e) => setForm({ ...form, matricule: e.target.value })} required placeholder="Ex: ENS001" />
+            <Select label="Grade" value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })} required
+              options={GRADES.map(g => ({ value: g, label: g }))} />
+            <Input label="Nom" value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} required />
+            <Input label="Prénom" value={form.prenom} onChange={(e) => setForm({ ...form, prenom: e.target.value })} required />
+            <Input label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email@univ.edu" />
+            <Input label="Téléphone" value={form.telephone} onChange={(e) => setForm({ ...form, telephone: e.target.value })} />
+
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]/50">
             <Button variant="ghost" type="button" onClick={() => setModalOpen(false)}>Annuler</Button>

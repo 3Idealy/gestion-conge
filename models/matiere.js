@@ -17,6 +17,7 @@ const Matiere = sequelize.define(
       unique: true,
       validate: {
         notEmpty: { msg: 'Le code de la matière est requis.' },
+        is: { args: /^[A-Za-z0-9_-]+$/, msg: 'Le code ne doit contenir que des lettres, chiffres, tirets ou underscores.' },
       },
     },
     libelle: {
@@ -36,9 +37,13 @@ const Matiere = sequelize.define(
       },
     },
     volume_horaire: {
-      type: DataTypes.SMALLINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: 'Volume horaire en heures',
+      validate: {
+        isInt: { msg: 'Le volume horaire doit être un nombre entier.' },
+        min: { args: [1], msg: 'Le volume horaire doit être supérieur à 0.' },
+      },
     },
     type_matiere: {
       type: DataTypes.ENUM('CM', 'TD', 'TP', 'PROJET'),
@@ -52,6 +57,14 @@ const Matiere = sequelize.define(
       references: { model: 'module', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'RESTRICT',
+    },
+    enseignant_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: 'enseignant', key: 'id' },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+      comment: 'Enseignant responsable de la matière',
     },
   },
   {
