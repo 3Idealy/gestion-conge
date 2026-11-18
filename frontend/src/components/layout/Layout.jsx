@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import { useAuth } from '../../contexts/AuthContext';
 import { Bell, Search, Check, CheckCheck, X, Settings } from 'lucide-react';
 import { notificationApi } from '../../services/api';
-//fdgvxcvxcvgfgfg
+//fdgvxcvxcvgfgfgcbvcvb
 
 const pageTitles = {
   '/': 'Tableau de bord',
